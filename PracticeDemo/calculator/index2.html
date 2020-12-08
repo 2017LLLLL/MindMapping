@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<style>
+			body{
+				margin: 0 auto;
+			}
+			.periphery{
+				margin-left: 25%;
+				margin-top: 10%;
+				text-align: center;
+				padding: 10px;
+			}
+			.parameterClass{
+				margin: 10px;
+			}
+			.handleClass{
+			}
+			.retultClass{
+				height: 50px;
+				border: none;
+				text-align: right;
+			}
+			button{
+			}
+			td{
+				height: 40px;
+				width: 50px;
+			}
+			.touchnumber:hover{
+				background-color: rgb(214,214,214);
+			}
+			.touchhandler:hover{
+				background-color: rgb(0,119,215);
+			}
+			.touchdel:hover{
+				background-color: red;
+			}
+			.head{
+				border: none;
+				font-size: 20px;
+			}
+			#peripheryTable{
+				width: 500px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="periphery" onclick="autoInputFocus()">
+			<table border="1px solid black" id="peripheryTable" onkeydown="onkeypressEvent(event)" >
+				<th colspan="9" class="head"><h3>计算器</h3></th>
+				<!-- 隐藏一个键盘输入 -->
+				<tr rowspan="1" style="color: darkgray;text-align: right;">
+					<td colspan="9" style="border: none;">
+						<input style="border: none; outline:none;color: white;" id="displayInput" autofocus />
+					</td>
+				</tr>
+				<!-- 显示第一个数和操作符 -->
+				<tr rowspan="1" style="color: darkgray;text-align: right;">
+					<td colspan="9" style="border-bottom: none;" id="resultHost"></td>
+				</tr>
+				<!-- 显示当前结果 -->
+				<tr rowspan="3" class="retultClass" >
+					<td colspan="9" style="border-top: none;" id="result">0</td>
+				</tr>
+				<!-- 按照电脑计算器布局 -->
+				<tr>
+					<td class="touchhandler" onclick="touchHandler(this)">%</td>
+					<td class="touchhandler" onclick="touchOne(this)">√</td>
+					<td class="touchhandler" onclick="touchOne(this)">x²</td>
+					<td class="touchhandler" onclick="touchOne(this)">1/x</td>
+				</tr>
+				<tr>
+					<td class="touchdel" onclick="touchDel(this)">CE</td>
+					<td class="touchdel" onclick="touchDel(this)">C</td>
+					<td class="touchdel" onclick="touchDel(this)">←</td>
+					<td class="touchhandler" onclick="touchHandler(this)">÷</td>
+				</tr>
+				<tr>
+					<td class="touchnumber" onclick="touchNum(this)">7</td>
+					<td class="touchnumber" onclick="touchNum(this)">8</td>
+					<td class="touchnumber" onclick="touchNum(this)">9</td>
+					<td class="touchhandler" onclick="touchHandler(this)">x</td>
+				</tr>
+				<tr>
+					<td class="touchnumber" onclick="touchNum(this)">4</td>
+					<td class="touchnumber" onclick="touchNum(this)">5</td>
+					<td class="touchnumber" onclick="touchNum(this)">6</td>
+					<td class="touchhandler" onclick="touchHandler(this)">-</td>
+				</tr>
+				<tr>
+					<td class="touchnumber" onclick="touchNum(this)">1</td>
+					<td class="touchnumber" onclick="touchNum(this)">2</td>
+					<td class="touchnumber" onclick="touchNum(this)">3</td>
+					<td class="touchhandler" onclick="touchHandler(this)">+</td>
+				</tr>
+				<tr>
+					<td class="touchnumber" onclick="touchHandler(this)">±</td>
+					<td class="touchnumber" onclick="touchNum(this)">0</td>
+					<td class="touchnumber" onclick="handlerDecimals()">.</td>
+					<td class="touchhandler" onclick="handlerEqule()">=</td>
+				</tr>
+			</table>
+
+		</div>
+		<script>
+			// 存放第一第二个数以及中转
+			let first='',second='',temp='',sign,result = 0;
+			
+			// 判断是否操作过，判断是否是小数;A是first,B是second
+			let isHandler = false,isDecimalsA = false,isDecimalsB = false;
+			
+			// 正则匹配是否出现小数
+			let decimalsRule = /[.]/g; 
+			
+			let resultAll = 0;
+			
+			let isEqual = false;
+			
+			// 聚焦
+			function autoInputFocus(){
+				document.getElementById("displayInput").focus();
+			}
+			
+			// 点击数字的操作
+			function touchNum(e){
+				let num = e.innerText;
+				showNum(num);
+			}
+			
+			// 对小数点的操作
+			function handlerDecimals(){
+				if(isHandler){
+					if(isDecimalsB){
+						return;
+					}
+					second += ".";
+					let resultDom = document.getElementById('result');
+					resultDom.innerText = second;
+				}else{
+					if(isDecimalsA){
+						return;
+					}
+					first += ".";
+					let resultDom = document.getElementById('result');
+					resultDom.innerText = first;
+				}
+			}
+			
+			// 封装显示数字的方法，因为要复用
+			function showNum(num){
+				if(isHandler){
+					second += num;
+					let resultDom = document.getElementById('result');
+					resultDom.innerText = second;
+				}else{
+					first += num;
+					let resultDom = document.getElementById('result');
+					resultDom.innerText = first;
+				}
+			}
+			
+			// 点击操作符的操作
+			function touchHandler(e){
+				let touchSign = e.innerText;
+				handlerSign(touchSign);
+			}
+			
+			// 封装操作符号的方法，因为要复用
+			function handlerSign(receiveSign){
+				sign = receiveSign;
+				temp = first + ' ' + sign;
+				let resultHostDom = document.getElementById('resultHost');
+				resultHostDom.innerText = temp;
+				isHandler = true;
+				
+			}
+			
+			
+			// 点击删除符的操作
+			function touchDel(e){
+				let domChange = document.getElementById('result');
+				let touchDel = e.innerText;
+				handlerDel(touchDel);
+			}
+			
+			// 删除操作的复用
+			function handlerDel(receiveDelSign){
+				let domChange = document.getElementById('result');
+				if(receiveDelSign == '←'){
+					if(!isHandler){
+						first = first.substring(0,first.length-1);
+						let result = first.match(decimalsRule);
+						if(result != '.'){
+							isDecimalsA = false;
+						}
+					}else{
+						second = second.substring(0,second.length-1);
+						let result = second.match(decimalsRule);
+						if(result != '.'){
+							isDecimalsA = false;
+						}
+					}
+					domChange.innerText = !isHandler ? first : second;
+					if(domChange.innerText == ''){
+						domChange.innerText = 0;
+					}
+				}else{
+					first = '';
+					second = '';
+					sign = '';
+					temp = '';
+					isHandler = false;
+					domChange.innerText = 0;
+					isDecimals = false;
+				}
+			}
+			
+			
+			// 点击等于时触发的事件
+			function handlerEqule(){
+				console.log('=');
+				// 让另一个函数处理
+				operation(sign,Number(first),Number(second))
+				document.getElementById('resultHost').innerText = '';
+				first = second = '';
+				isHandler = false;
+			}
+			
+			
+			// 点击等于时触发的事件
+			function handlerEquleAll(){
+				console.log('========');
+				// 让另一个函数处理
+				first = resultAll;
+				isHandler = false;
+				isEqual = true;
+			}
+			
+			
+			
+			// 对单个数的运算处理
+			function touchOne(e){
+				let num = isHandler ? second : first;
+				operationOne(e.innerText,Number(num));
+			}
+			
+			// 兼容键盘输入
+			function onkeypressEvent(e){
+				console.log(e.keyCode);
+				handlerInput(e.keyCode)
+			}
+			
+			
+			// 手动输入
+			function handlerInput(keycode){
+				switch(keycode){
+					case 48 : case 96:
+						showNum(0);
+						return;
+					case 49 : case 97: 
+						showNum(1);
+						return;
+					case 50 : case 98:
+						showNum(2);
+						return;
+					case 51 : case 99:
+						showNum(3);
+						return;
+					case 52 : case 100:
+						showNum(4);
+						return;
+					case 53 : case 101:
+						showNum(5);
+						return;
+					case 54 : case 102:
+						showNum(6);
+						return;
+					case 55 : case 103:
+						showNum(7);
+						return;
+					case 56 : case 104:
+						showNum(8);
+						return;
+					case 57 : case 105:
+						showNum(9);
+						return;
+					case 107 : 
+						handlerSign('+');
+						return;
+					case 109 : 
+						handlerSign('-');
+						return;
+					case 106 :
+						handlerSign('*');
+						return;
+					case 111 :
+						handlerSign('/');
+						return;
+					case 13 :
+						// 获取结果
+						handlerEqule();
+						return;
+					case 110 : case 229 :
+						// 操作小数点
+						handlerDecimals();
+						return;
+					case 8 :
+						// 操作退一格
+						handlerDel('←');
+						return;
+					case 27 :
+						// 清除
+						handlerDel(' ');
+						return;
+					default:
+						console.log('无效输入，请重新输入！');
+				}
+			}
+
+			
+			// 具体计算
+			function operation(operationType,firstValue,secondValue){
+				// 获取结果dom节点
+				let resultValue = document.getElementById('result');
+				// 分支计算
+				switch(operationType){
+					case '+': 
+						resultValue.innerText =  (firstValue + secondValue);
+						return;
+					case '-':
+						resultValue.innerText =  (firstValue - secondValue);
+						return;
+					case 'x':
+						resultValue.innerText =  (firstValue * secondValue);
+						return;
+					case '÷':
+						resultValue.innerText =  (firstValue / secondValue);
+						return;
+					case '%':
+						resultValue.innerText =  (firstValue % secondValue);
+						return;
+					default:
+						alert('未知操作，请联系管理员处理！');
+				}
+			}
+			
+			
+			// 具体计算累加的操作
+			function operationAll(operationType,firstValue,secondValue){
+				// 分支计算
+				switch(operationType){
+					case '+': 
+						resultAll =  (firstValue + secondValue);
+						return;
+					case '-':
+						resultAll =  (firstValue - secondValue);
+						return;
+					case 'x':
+						resultAll =  (firstValue * secondValue);
+						return;
+					case '÷':
+						resultAll =  (firstValue / secondValue);
+						return;
+					case '%':
+						resultAll =  (firstValue % secondValue);
+						return;
+					default:
+						console.log('未知操作，请联系管理员处理！');
+				}
+			}
+			
+			// 对单个数值操作的运算
+			function operationOne(operationType,resultNumber){
+				let resultValue = document.getElementById('result');
+				// 分支计算
+				switch(operationType){
+					case 'x²': 
+						resultNumber = Math.pow(resultNumber,2);
+						resultValue.innerText = resultNumber;
+						return;
+					case '1/x':
+						resultNumber = 1/resultNumber;
+						resultValue.innerText = resultNumber;
+						return;
+					case '±':
+						resultNumber = 0 - resultNumber;
+						resultValue.innerText = resultNumber;
+						return;
+					case '√':
+						resultNumber = Math.sqrt(resultNumber);
+						resultValue.innerText = resultNumber;
+						return;
+					default:
+						alert('未知操作，请联系管理员处理！');
+				}
+			}
+		</script>
+	</body>
+</html>

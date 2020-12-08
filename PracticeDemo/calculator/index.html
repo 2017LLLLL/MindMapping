@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<style>
+			body{
+				margin: 0 auto;
+			}
+			.periphery{
+				margin-left: 35%;
+				margin-top: 10%;
+				text-align: center;
+				border: 1px solid black;
+				width: 30%;
+				padding: 10px;
+			}
+			.parameterClass{
+				margin: 10px;
+			}
+			.handleClass{
+				margin: 10px;
+			}
+			.retultClass{
+			}
+			button{
+				padding: 8px;
+				margin: 12px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="periphery">
+			<h1>简易计算器</h1>
+			<!-- 输入位 -->
+			<div class="parameterClass">
+				<span>第一个参数：</span><input id="first" placeholder="请输入第一位数"/>
+			</div>
+			<div>
+				<span>第一个参数：</span><input id="second" placeholder="请输入第二位数" />
+			</div>
+			<div class="handleClass">
+				<span>操作：</span>
+				<button value="+" onclick="handle(this)">+</button>
+				<button value="-" onclick="handle(this)">-</button>
+				<button value="*" onclick="handle(this)">*</button>
+				<button value="/" onclick="handle(this)">/</button>
+			</div>
+			<div class="retultClass">
+				<span>结果：</span>
+				<span id="result">您未开始计算</span>
+			</div>
+		</div>
+		<script>
+			// 获取值和操作符号
+			function handle(event){
+				// 获取要处理的两个数
+				var firstValue = document.getElementById('first').value;
+				var secondValue = document.getElementById('second').value;
+				operation(event.value,Number(firstValue),Number(secondValue));
+			}
+			
+			// 具体计算
+			function operation(operationType,firstValue,secondValue){
+				// 获取结果dom节点
+				var resultValue = document.getElementById('result');
+				// 分支计算
+				switch(operationType){
+					case '+': 
+						resultValue.innerText = firstValue + operationType + secondValue +"的值是" + (firstValue + secondValue);
+						return;
+					case '-':
+						resultValue.innerText = firstValue + operationType + secondValue +"的值是" + (firstValue - secondValue);
+						return;
+					case '*':
+						resultValue.innerText = firstValue + operationType + secondValue +"的值是" + (firstValue * secondValue);
+						return;
+					case '/':
+						resultValue.innerText = firstValue + operationType + secondValue +"的值是" + (firstValue / secondValue);
+						return;
+					default:
+						alert('未知操作，请联系管理员处理！');
+				}
+			}
+		</script>
+	</body>
+</html>
